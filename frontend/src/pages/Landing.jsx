@@ -30,7 +30,7 @@ const features = [
 const Landing = () => {
   const { user } = useAuth()
   const { theme, toggle } = useTheme()
-  // if(user) return <Navigate to='/dashboard' replace />
+  if(user) return <Navigate to='/dashboard' replace />
 
   return (
     <div className="min-h-screen">
