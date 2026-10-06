@@ -1,9 +1,10 @@
-import { BarChart3, Brain, CalendarDays, LayoutDashboard, ListChecks, Moon, Sparkles, Sun } from "lucide-react"
+import { BarChart3, Brain, CalendarDays, LayoutDashboard, ListChecks, LogOut, Moon, Settings, Sparkles, Sun } from "lucide-react"
 import { useAuth } from "../context/AuthContext"
 import { useTheme } from "../context/ThemeContext"
 import { useState } from "react"
 import api from "../api/axios"
 import { NavLink } from "react-router-dom"
+import Modal from "./Modal"
 
 const nav = [
     { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -47,22 +48,61 @@ const Sidebar = () => {
 
             <nav className="flex-1 px-3 py-4 space-y-1">
                 {nav.map(({to, label, icon:Icon})=>(
-                    <NavLink key={to} to={to} className={({ isActive })=>{
+                    <NavLink key={to} to={to} className={({ isActive })=>
                         `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition
                         ${isActive ? 'bg-gradient-to-r from-brand-500/15 to-brand-500/5 text-brand-700 dark:text-brand-300 ring-1 ring-brand-500/20': 'text-soft hover:bg-[var(--surface-hover)]'}`
-                    }}>
+                    }>
                         <Icon size={18} /> {label}
                     </NavLink>
                 ))}
             </nav>
 
             <div className="p-3 border-t divider space-y-1">
-                <button onClick={toggle} className='w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-soft hover:bg-[var(--surface-hover)] transition'>
+                <button onClick={toggle} className='w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-soft hover:bg-[var(--surface-hover)] transition cursor-pointer'>
                     {theme === 'dark' ? <Sun size={18} /> : <Moon size={18}/>}
                     {theme === 'dark' ? 'Light mode' : 'Dark modes'}
                 </button>
+                
+                <button onClick={()=>setSettingsOpen(true)} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-soft hover:bg-[var(--surface-hover)] transition cursor-pointer">
+                    <Settings size={18} /> Settings
+                </button>
 
+                <div className="px-2 py-2 flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 text-white font-semibold flex items-center justify-center shadow-md shadow-brand-500/30">
+                        {user?.avatar || user?.name.charAt(0).toUpperCase() || 'U'}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                        <div className="text-sm font-medium truncate">{user?.name}</div>
+                        <div className="text-xs text-faint truncate">{user?.email}</div>
+                    </div>
+                    <button onClick={logout} title="Log out" className="p-2 rounded-lg text-soft hhover:bg-[var(--surface-hover)] cursor-pointer">
+                        <LogOut size={20} />
+                    </button>
+                </div>
             </div>
+
+            <Modal open={settingsOpen} onClose={()=>setSettingsOpen(false)} title='Settings'>
+                <div className="space-y-4">
+                    <div>
+                        <label className="label">Display name</label>
+                        <input type="text" className="input" value={name} onChange={(e)=>setName(e.target.value)} />
+                    </div>
+                    <label className="flex items-start gap-3 p-3 rounded-xl glass cursor-pointer hover:bg-[var(--surface-hover)]">
+                        <input type="checkbox" checked={morning} onChange={(e)=>setMorning(e.target.checked)} className="mt-1 accent-brand-600" />
+                        <div>
+                            <div className="text-sm font-medium">Morning motivation</div>
+                            <div className="text-xs text-faint">
+                                Show a short personalised AI message every morning on te dashboard.
+                            </div>
+                        </div>
+                    </label>
+
+                    <div className="flex justify-end gap-2 pt-2">
+                        <button onClick={()=>setSettingsOpen(false)} className="btn-secondary">Cancel</button>
+                        <button onClick={save} disabled={saving} className="btn-primary">{saving ? 'Saving...' : 'Save'}</button>
+                    </div>
+                </div>
+            </Modal>
         </aside>
     )
 }

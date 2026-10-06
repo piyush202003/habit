@@ -9,6 +9,7 @@ import Dashboard from "./pages/Dashboard"
 import Habits from "./pages/Habits"
 import Weekly from "./pages/Weekly"
 import Stats from "./pages/Stats"
+import Insights from "./pages/Insights"
 
 function ProtectedRoute({children}){
   const { user, loading } = useAuth()
@@ -37,7 +38,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard/>} />
         <Route path='/habits' element={<Habits/>} />
         <Route path='/weekly' element={<Weekly/>} />
-        <Route path='/insights' element={<Element/>} />
+        <Route path='/insights' element={<Insights/>} />
         <Route path='/stats' element={<Stats/>} />
       </Route>
 
