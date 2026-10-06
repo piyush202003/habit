@@ -1,8 +1,12 @@
+import { Outlet } from "react-router-dom"
+
 
 
 const AppLayout = () => {
   return (
-    <div>AppLayout</div>
+    <div className="min-h-screen">
+      <Outlet />
+    </div>
   )
 }
 
