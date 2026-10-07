@@ -4,6 +4,7 @@ import { streakFromKeys, weekKeys } from "../utils/dateHelpers"
 import api from "../api/axios"
 import { Plus, Sparkles } from "lucide-react"
 import MorningMotivation from "../components/MorningMotivation"
+import StreakRecoveryCard from "../components/StreakRecoveryCard"
 
 
 const Dashboard = () => {
@@ -117,8 +118,21 @@ const Dashboard = () => {
       </div>
 
       <MorningMotivation />
-
       
+      {recoveryHabit && (
+        <StreakRecoveryCard 
+          habit={recoveryHabit} 
+          onDismiss={()=>{
+            const dismissed = JSON.parse(
+              localStorage.getItem('recovery-dismissed') || "{}"
+            )
+            dismissed[recoveryHabit._id] = Date.now()
+            localStorage.setItem('recovery-dismissed', JSON.stringify(dismissed))
+            setRecoveryHabit(null)
+          }}
+        />
+      )}
+
     </div>
   )
 }
