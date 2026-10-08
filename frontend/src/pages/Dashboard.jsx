@@ -1,10 +1,15 @@
 import { use, useEffect, useMemo, useState } from "react"
 import { useAuth } from "../context/AuthContext"
-import { streakFromKeys, weekKeys } from "../utils/dateHelpers"
+import { streakFromKeys, todayKey, weekKeys } from "../utils/dateHelpers"
 import api from "../api/axios"
-import { Plus, Sparkles } from "lucide-react"
+import { Plus, Sparkles, Summary } from "lucide-react"
 import MorningMotivation from "../components/MorningMotivation"
 import StreakRecoveryCard from "../components/StreakRecoveryCard"
+import SummaryCards from "../components/SummaryCards"
+import { celebrate } from "../utils/confetti"
+import ProgressRing from "../components/ProgressRing"
+import TodayHabitCard from "../components/TodayHabitCard"
+import LoadingSpinner from "../components/LoadingSpinner"
 
 
 const Dashboard = () => {
@@ -69,7 +74,7 @@ const Dashboard = () => {
     loadAll()
   },[])
 
-  const completedTOday = useMemo(()=> new Set(todayLogs.map((l)=>String(l.habitId))),[todayLogs])
+  const completedToday = useMemo(()=> new Set(todayLogs.map((l)=>String(l.habitId))),[todayLogs])
 
   const weekLogsByHabit = useMemo(()=>{
     const out = {}
@@ -88,8 +93,122 @@ const Dashboard = () => {
     return out
   },[habits, allLogsByHabit])
 
+  const todayProgress = habits.length
+    ? Math.round((completedToday.size / habits.length)*100)
+    : 0
+  
+  const activeStreaks = Object.values(streaksById).filter((s)=>s.current > 0).length
+
+  const bestStreak = Math.max(0, ...Object.values(streaksById).map((s)=>s.longest))
+
+  const weekTotal = habits.length * 7
+
+  const weekDone = Object.values(weekLogsByHabit).reduce((s, arr)=> s+arr.length, 0)
+
+  const weekRate = weekTotal ? Math.round((weekDone / weekTotal) * 100) : 0;
+
+  useEffect(()=>{
+    if(recoveryHabit) return
+    if(!habits.length) return
+    const dismissed = JSON.parse(localStorage.getItem('recovery-dismissed') || '{}')
+    for (const h of habits){
+      const s = streaksById[h._id]
+      if (!s) continue
+      if(s.longest >= 7 && s.current === 0 && !dismissed[h._id]){
+        setRecoveryHabit(h)
+        return
+      }
+    }
+  },[habits, streaksById, recoveryHabit])
+
+  const toggle = async (habit)=>{
+    const done = completedToday.has(String(habit._id))
+    const today = todayKey()
+    if(done){
+      await api.delete('/logs',{
+        data: { habitId: habit._id, date:today},
+      })
+      setTodayLogs((logs)=> logs.filter((l)=>String(l.habitId) !== String(habit._id)))
+      setAllLogsByHabit((prev)=>{
+        const next = { ...prev }
+        next[habit._id] = (next[habit._id] || []).filter((d)=> d!== today)
+        return next
+      })
+    } else {
+      const res = await api.post('/logs', { habitId: habit._id, date: today})
+      setTodayLogs((logs)=>[...logs, res.data])
+      setAllLogsByHabit((prev)=>{
+        const next = {...prev}
+        next[habit._id] = [today, ...(next[habit._id] || [])]
+        return next
+      })
+
+      celebrate()
+      setTimeout(()=>{
+        const nextDone = completedToday.size + 1
+        if(nextDone === habits.length && habits.length > 0){
+          celebrate()
+        }
+      }, 150)
+    }
+  }
+
+  const saveHabit = async (data) => {
+    setSubmitting(true)
+    try{
+      if(editing){
+        const res = await api.put(`/habits/${editing._id}`, data)
+        setHabits((hs)=> hs.map((h)=>(h._id === res.data._id ? res.data : h)))
+      } else {
+        const res = await api.post("/habits", data)
+        setHabits((hs)=>[...hs, res.data])
+        setAllLogsByHabit((p)=>({...p, [res.data._id]: []}))
+      }
+      setFormOpen(false)
+      setEditing(null)
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const deleteHabit = async (habit) => {
+    await api.delete(`/habits/${habit._id}`)
+    setHabits((hs)=> hs.filter((h)=>h._id !== habit._id))
+    setTodayLogs((ls)=> ls.filter((l)=>String(l.habitId)!==String(habit._id)) )
+    
+    setAllLogsByHabit((prev)=>{
+      const next = {...prev}
+      delete next[habit._id]
+      return next
+    })
+    setDeleteTarget(null)
+  }
+
+  const archiveHabit = async (habit) => {
+    const res = await api.put(`/habits/${habit._id}/archive`)
+    if(res.data.isArchived){
+      setHabits((hs)=>hs.filter((h)=>h._id === habit._id))
+    } else {
+      setHabits((hs) => hs.map((h)=>h._id === res.data._id ? res.data : h))
+    }
+  }
+  const acceptSuggestion = async (s) =>{
+    const res = await api.post('/habits', {
+      name:s.name,
+      description:s.description, 
+      category:s.category,
+      frequency: s.frequency,
+      icon: s.icon, 
+      targetDays: s.frequency === 'daily' ? 7 : 3
+    }) 
+    setHabits((hs)=>[...hs, res.data])
+    setAllLogsByHabit((p)=>({...p, [res.data._id]: []}))
+  }
+
+  if(loading) return <LoadingSpinner full />
+
   return (
-    <div className="spacey-y-6 animate-fade-in">
+    <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between gap-3">
         
         <div>
@@ -133,6 +252,63 @@ const Dashboard = () => {
         />
       )}
 
+      <SummaryCards 
+        totalHabits={habits.length}
+        activeStreaks={activeStreaks}
+        bestStreak={bestStreak}
+        weekRate={weekRate}
+      />
+
+      <div className="card p-5">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <div className="text-sm font-medium">Today's habits</div>
+            <div className="text-xs text-muted">
+              {completedToday.size} of {habits.length} complete
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <ProgressRing value={todayProgress} size={52} stroke={5} />
+              <div className="absolute inset-0 flex items-center justify-center text-xs font-semibold">
+                {todayProgress}%
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {habits.length === 0 ? (
+          <div className="text-center py-8">
+            <div className="text-5xl mb-3">🎯</div>
+            <div className="font-medium">Let's build your first habit</div>
+            <div className="text-sm text-muted mt-1">
+              Start small — something you can do in under 5 minutes.
+            </div>
+            <button onClick={()=> setFormOpen(true)} className="btn-primary mt-4">
+              <Plus size={14} />
+              Create habit
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {habits.map((h)=>(
+              <TodayHabitCard 
+                key={h._id}
+                habit={h}
+                completed={completedToday.has(String(h._id))}
+                streak={streaksById[h._id]?.current || 0}
+                onToggle={()=>toggle(h)}
+                onEdit={()=>{
+                  setEditing(h)
+                  setFormOpen(true)
+                }}
+                onArchive={()=>archiveHabit(h)}
+                onDelete={()=>setDeleteTarget(h)}
+              />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   )
 }
