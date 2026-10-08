@@ -11,6 +11,7 @@ import ProgressRing from "../components/ProgressRing"
 import TodayHabitCard from "../components/TodayHabitCard"
 import LoadingSpinner from "../components/LoadingSpinner"
 import AIWeeklyReport from "../components/AIWeeklyReport"
+import WeeklyGrid from "../components/WeeklyGrid"
 
 
 const Dashboard = () => {
@@ -312,6 +313,12 @@ const Dashboard = () => {
       </div>
 
       <AIWeeklyReport />
+
+      <div className="grid gap-5 lg:grid-cols-12">
+        <div className="col-span-8">
+          <WeeklyGrid habits={habits} logsByHabit={weekLogsByHabit} />
+        </div>
+      </div>
     </div>
   )
 }
