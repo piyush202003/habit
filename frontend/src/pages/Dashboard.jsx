@@ -10,6 +10,7 @@ import { celebrate } from "../utils/confetti"
 import ProgressRing from "../components/ProgressRing"
 import TodayHabitCard from "../components/TodayHabitCard"
 import LoadingSpinner from "../components/LoadingSpinner"
+import AIWeeklyReport from "../components/AIWeeklyReport"
 
 
 const Dashboard = () => {
@@ -309,6 +310,8 @@ const Dashboard = () => {
           </div>
         )}
       </div>
+
+      <AIWeeklyReport />
     </div>
   )
 }
