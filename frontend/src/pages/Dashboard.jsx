@@ -12,6 +12,10 @@ import TodayHabitCard from "../components/TodayHabitCard"
 import LoadingSpinner from "../components/LoadingSpinner"
 import AIWeeklyReport from "../components/AIWeeklyReport"
 import WeeklyGrid from "../components/WeeklyGrid"
+import HeatmapChart from "../components/HeatmapChart"
+import Modal from "../components/Modal"
+import HabitForm from "../components/HabitForm"
+import HabitSuggestionModal from "../components/HabitSuggestionModal"
 
 
 const Dashboard = () => {
@@ -21,7 +25,7 @@ const Dashboard = () => {
   const [habits, setHabits] = useState([])
   const [todayLogs, setTodayLogs] = useState([])
   const [weekLogs, setWeekLogs] = useState([])
-  const [headmap, setHeatmap] = useState([])
+  const [heatmap, setHeatmap] = useState([])
   const [allLogsByHabit, setAllLogsByHabit] = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -318,7 +322,46 @@ const Dashboard = () => {
         <div className="col-span-8">
           <WeeklyGrid habits={habits} logsByHabit={weekLogsByHabit} />
         </div>
+        <div className='col-span-4'>
+          <HeatmapChart data={heatmap} />
+        </div>
       </div>
+
+      <Modal 
+        open={formOpen}
+        onClose={()=>{
+          setFormOpen(false)
+          setEditing(null)
+        }}
+        title={editing ? 'Edit habit' : 'New habit'}
+      >
+        <HabitForm 
+          initial={editing}
+          submitting={submitting}
+          onCancel={()=>{
+            setFormOpen(false)
+            setEditing(null)
+          }}
+          onSubmit={saveHabit}
+        />
+      </Modal>
+
+      <Modal 
+        open={!!deleteTarget}
+        onClose={()=>setDeleteTarget(null)}
+        title={'Delete habit?'}
+        maxWidth="max-w-sm"
+      >
+        <p className="text-sm text-soft">
+          This will permanently delete <b>{deleteTarget?.name}</b> and all its history. This can't be undone.
+        </p>
+        <div className="flex justify-end gap-2 mt-5">
+          <button onClick={()=>setDeleteTarget(null)} className="btn-secondary">Cancel</button>
+          <button onClick={()=>deleteHabit(deleteTarget)} className="inline-flex items-center justify-center gap-2 rounded-xl bg-linear-to-br from-rose-500 to-red-600 px-4 py-2.5 text-sm font-medium text-white hover:brightness-100 shadow-lg shadow-rose-500/30 transition cursor-pointer">Delete</button>
+        </div>
+      </Modal>
+
+      <HabitSuggestionModal open={suggestOpen} onClose={()=>setSuggestOpen(false)} onAccept={acceptSuggestion}/>
     </div>
   )
 }
