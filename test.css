@@ -1,0 +1,15 @@
+:root{
+    --primary-color: #32323a;
+    --line-color: #70708b
+}
+
+body{
+    background: #1f1f23;
+    color: white;
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+select{
+    appearance: base-select;
+    background-color:chocolate;
+}

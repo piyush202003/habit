@@ -46,7 +46,7 @@ const HabitForm = ({ initial, onSubmit, onCancel, submitting}) => {
                     <label className="label">Frequency</label>
                     <select value={form.frequency} onChange={set('frequency')} className="input">
                         <option value="daily">Daily</option>
-                        <option value="weekly"></option>
+                        <option value="weekly">Weekly</option>
                     </select>
                 </div>
             </div>

@@ -143,6 +143,12 @@ body::before {
   filter: saturate(1.1);
 }
 
+select option{
+  background-color: var(--color-brand-200);
+  color: black;
+}
+
+
 /* ---------- Utility components ---------- */
 @layer components {
   .glass {
