@@ -14,7 +14,7 @@ const corsOptions = {
     origin(origin, cb) {
 
         // allow requests with no origin (curl, same-origin, server-to-server)
-        if(!origin) return cb(null, ture)
+        if(!origin) return cb(null, true)
 
         // allow any localhost / 127.0.0.1 origin in development
         if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)){
