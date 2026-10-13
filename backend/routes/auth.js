@@ -8,3 +8,6 @@ router.post('/register', register)
 router.post('/login', login)
 router.get('/me', protect, me)
 router.put('/profile', protect, updateProfile)
+
+const authRoutes = router
+export default authRoutes

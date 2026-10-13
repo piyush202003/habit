@@ -5,7 +5,11 @@ import User from '../models/User.js'
 configDotenv()
 
 const signToken = (id) => {
-    return jwt.sign({id}, process.env.JWT_SECRET, {expiresIn: process.env.JWT_EXPIRES_IN || '30d'})
+    return jwt.sign(
+        {id}, 
+        process.env.JWT_SECRET, 
+        {expiresIn: process.env.JWT_EXPIRES_IN || '30d'}
+    )
 }
 
 export const register = async (req, res) => {

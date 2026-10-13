@@ -3,6 +3,7 @@ import cors from 'cors'
 import { connectDB } from './config/db.js'
 import { notFound, errorHandler } from './middleware/errorHandler.js'
 import { configDotenv } from 'dotenv'
+import authRoutes from './routes/auth.js'
 
 configDotenv()
 
@@ -37,6 +38,8 @@ app.use(express.json({limit:'1mb'}))
 app.get('/api/health', (req,res)=>
     res.json({status:'ok', time: new Date().toISOString() })
 )
+
+app.use('/api/auth', authRoutes)
 
 app.use(notFound)
 app.use(errorHandler)
