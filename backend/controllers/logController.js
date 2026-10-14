@@ -133,10 +133,10 @@ export const getAllStatus = async (req, res) => {
             const hLogs = logs.filter((l)=>String(l.habitId) === String(h._id))
             const keys = hLogs.map((l)=>l.completedDate).sort().reverse()
             const { current, longest }= calcStreak(keys)
-            return { habitId:h._id, name:h.name, icon:h.icon, color: h.color, category: h.category, completions30d: hlogs.length, currentStreak: current, longestStreak: longest, }
+            return { habitId:h._id, name:h.name, icon:h.icon, color: h.color, category: h.category, completions30d: hLogs.length, currentStreak: current, longestStreak: longest, }
         })
 
-        res.json({perHabit, dayss})
+        res.json({perHabit, days})
     } catch (error) {
         res.status(500).json({message: error.message})
     }
