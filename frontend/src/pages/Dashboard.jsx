@@ -216,7 +216,6 @@ const Dashboard = () => {
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between gap-3">
-        
         <div>
           <h1 className="text-2xl md:text-3xl font-semibold tracking-tight">
             Hey {user?.name?.split(" ")[0]} 👋

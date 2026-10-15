@@ -75,7 +75,11 @@ const Habits = () => {
     try{
       if(editing) {
         const res = await api.put( `/habits/${editing._id}`, data)
-        setHabits((hs)=> [...hs, res.data])
+        setHabits((prevHb) =>
+          prevHb.map((habit) =>
+            habit._id === editing._id ? res.data : habit
+          )
+        )
       } else {
         const res = await api.post('/habits', data)
         setHabits((hs)=>[...hs, res.data])
