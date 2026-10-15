@@ -43,6 +43,7 @@ export const getToday = async (req, res) => {
             userId: req.user._id,
             completedDate: todayKey()
         })
+        res.json(logs)
     } catch (error) {
         res.status(500).json({message:error.message})
     }
@@ -55,6 +56,7 @@ export const getRange = async (req, res) => {
             userId: req.user._id,
             completedDate: {$gte: start, $lte: end},
         }) 
+        res.json(logs)
     } catch (error) {
         res.status(500).json({message:error.message})
     }
