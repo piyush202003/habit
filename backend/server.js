@@ -6,6 +6,7 @@ import { configDotenv } from 'dotenv'
 import authRoutes from './routes/auth.js'
 import habitRoutes from './routes/habits.js'
 import logRoutes from './routes/logs.js'
+import aiRouts from './routes/ai.js'
 
 configDotenv()
 
@@ -44,6 +45,7 @@ app.get('/api/health', (req,res)=>
 app.use('/api/auth', authRoutes)
 app.use('/api/habits', habitRoutes)
 app.use('/api/logs', logRoutes)
+app.use('/api/ai', aiRouts)
 
 app.use(notFound)
 app.use(errorHandler)
