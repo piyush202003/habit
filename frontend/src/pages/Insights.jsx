@@ -86,7 +86,7 @@ const Insights = () => {
             const { content, generatedAt } = JSON.parse(cached);
             setReport(content);
             setReportGeneratedAt(new Date(generatedAt));
-          } catch {}
+          } catch { console.log('cached error occured in Insights.')}
         } else {
           // auto-generate on first visit this week
           generateReport();

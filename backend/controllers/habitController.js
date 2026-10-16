@@ -50,9 +50,8 @@ export const deleteHabit = async (req, res) => {
     try {
         const habit = await Habit.findOneAndDelete({
             _id: req.params.id,
-            userId: req.user._id
+            userId: req.user._id,
         })
-
         if(!habit){
             return res.status(404).json({message:'Habit not found'})
         }

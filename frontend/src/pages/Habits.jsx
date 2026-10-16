@@ -98,7 +98,7 @@ const Habits = () => {
   };
 
   const remove = async (habit) => {
-    await api.delete(`/delete/${habit._id}`)
+    await api.delete(`/habits/${habit._id}`)
     setHabits((hs)=>hs.filter((h)=>h._id!==habit._id))
     setDeleteTarget(null)
   }
