@@ -81,19 +81,19 @@ export default function TodayHabitCard({ habit, completed, onToggle, streak=0, o
                                 style={{ top:pos.top, left:pos.left}}
                             >
                                 <button
-                                    className="w-full flex items-center gap-2 px-3 py-2 text-sm text-soft hover:bg-[var(--surface-hover)]"
+                                    className="w-full flex items-center gap-2 px-3 py-2 text-sm text-soft hover:bg-[var(--surface-hover)] cursor-pointer"
                                     onClick={()=>{setMenu(false);onEdit();}}
                                 >
                                     <Pencil size={14} /> Edit
                                 </button>
                                 <button 
-                                    className="w-full flex items-center gap-2 px-3 py-2 text-sm text-soft hover:bg-[var(--surface-hover)]"
+                                    className="w-full flex items-center gap-2 px-3 py-2 text-sm text-soft hover:bg-[var(--surface-hover)] cursor-pointer"
                                     onClick={()=>{setMenu(false);onArchive();}}
                                 >
                                     <Archive size={14} /> {habit.isArchived ? 'Unarchive' : 'Archive'}
                                 </button>
                                 <button
-                                    className="w-full flex items-center gap-2 px-3 py-2 text-sm text-rose-500 hover:bg-rose-500/10"
+                                    className="w-full flex items-center gap-2 px-3 py-2 text-sm text-rose-500 hover:bg-rose-500/10 cursor-pointer"
                                     onClick={()=>{setMenu(false);onDelete();}}
                                 >
                                     <Trash2 size={14} /> Delete

@@ -10,6 +10,9 @@ import Habits from "./pages/Habits"
 import Weekly from "./pages/Weekly"
 import Stats from "./pages/Stats"
 import Insights from "./pages/Insights"
+import { ToastContainer } from "react-toastify"
+import "react-toastify/dist/ReactToastify.css"
+import { useTheme } from "./context/ThemeContext"
 
 function ProtectedRoute({children}){
   const { user, loading } = useAuth()
@@ -24,26 +27,39 @@ function ProtectedRoute({children}){
 
 function App() {
 
+  const { theme } = useTheme()
+
   return (
-    <Routes>
-      <Route path="/" element={<Landing />} />
-      <Route path='/login' element={<Login/>} />
-      <Route path='/register' element={<Register/>} />
+    <>
+      <ToastContainer 
+        position="top-right"
+        autoClose={2500}
+        newestOnTop
+        closeOnClick
+        pauseOnHover
+        draggable
+        theme={theme === "dark" ? "dark" : "light"}
+      />
+      <Routes>
+        <Route path="/" element={<Landing />} />
+        <Route path='/login' element={<Login/>} />
+        <Route path='/register' element={<Register/>} />
 
-      <Route element={
-        <ProtectedRoute>
-          <AppLayout/>
-        </ProtectedRoute>
-      }>
-        <Route path="/dashboard" element={<Dashboard/>} />
-        <Route path='/habits' element={<Habits/>} />
-        <Route path='/weekly' element={<Weekly/>} />
-        <Route path='/insights' element={<Insights/>} />
-        <Route path='/stats' element={<Stats/>} />
-      </Route>
+        <Route element={
+          <ProtectedRoute>
+            <AppLayout/>
+          </ProtectedRoute>
+        }>
+          <Route path="/dashboard" element={<Dashboard/>} />
+          <Route path='/habits' element={<Habits/>} />
+          <Route path='/weekly' element={<Weekly/>} />
+          <Route path='/insights' element={<Insights/>} />
+          <Route path='/stats' element={<Stats/>} />
+        </Route>
 
-      <Route path='*' element={<Navigate to='/' replace />} />
-    </Routes>
+        <Route path='*' element={<Navigate to='/' replace />} />
+      </Routes>
+    </>
   )
 }
 

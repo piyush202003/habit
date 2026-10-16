@@ -16,6 +16,7 @@ import HeatmapChart from "../components/HeatmapChart"
 import Modal from "../components/Modal"
 import HabitForm from "../components/HabitForm"
 import HabitSuggestionModal from "../components/HabitSuggestionModal"
+import { toast } from "react-toastify"
 
 
 const Dashboard = () => {
@@ -80,7 +81,9 @@ const Dashboard = () => {
     loadAll()
   },[])
 
-  const completedToday = useMemo(()=> new Set(todayLogs.map((l)=>String(l.habitId))),[todayLogs])
+  const completedToday = useMemo(()=> {
+    return new Set(todayLogs.map((l)=>String(l.habitId)))
+  },[todayLogs])
 
   const weekLogsByHabit = useMemo(()=>{
     const out = {}
@@ -130,10 +133,14 @@ const Dashboard = () => {
   const toggle = async (habit)=>{
     const done = completedToday.has(String(habit._id))
     const today = todayKey()
+    console.log(weekLogs)
     if(done){
+
       await api.delete('/logs',{
         data: { habitId: habit._id, date:today},
       })
+      toast.success(`${habit.name} has been Unmarked!`)
+
       setTodayLogs((logs)=> logs.filter((l)=>String(l.habitId) !== String(habit._id)))
       setAllLogsByHabit((prev)=>{
         const next = { ...prev }
@@ -141,7 +148,15 @@ const Dashboard = () => {
         return next
       })
     } else {
-      const res = await api.post('/logs', { habitId: habit._id, date: today})
+
+      const res = await toast.promise(
+        api.post('/logs', { habitId: habit._id, date: today}),{
+          pending: 'Updating completion status of habit...',
+          success: `${habit.name.toUpperCase()} has been Marked.`,
+          error: 'Failed to update status of habit.'
+        }
+      )
+
       setTodayLogs((logs)=>[...logs, res.data])
       setAllLogsByHabit((prev)=>{
         const next = {...prev}
@@ -163,10 +178,23 @@ const Dashboard = () => {
     setSubmitting(true)
     try{
       if(editing){
-        const res = await api.put(`/habits/${editing._id}`, data)
+        const res = await toast.promise(
+          api.put(`/habits/${editing._id}`, data),{
+            pending: 'Editing habit...',
+            success: `${editing.name.toUpperCase()} has been updated.`,
+            error: 'Failed to update habit.'
+          }
+        )
         setHabits((hs)=> hs.map((h)=>(h._id === res.data._id ? res.data : h)))
       } else {
-        const res = await api.post("/habits", data)
+        // const res = await api.post("/habits", data)
+        const res = await toast.promise(
+          api.post("/habits", data),{
+            pending: 'Adding new habit...',
+            success: 'Habit created successfully!',
+            error: 'Failed to update habit.'
+          }
+        )
         setHabits((hs)=>[...hs, res.data])
         setAllLogsByHabit((p)=>({...p, [res.data._id]: []}))
       }
@@ -179,6 +207,8 @@ const Dashboard = () => {
 
   const deleteHabit = async (habit) => {
     await api.delete(`/habits/${habit._id}`)
+    toast.success(`${habit.name.toUpperCase()} has been deleted.`)
+
     setHabits((hs)=> hs.filter((h)=>h._id !== habit._id))
     setTodayLogs((ls)=> ls.filter((l)=>String(l.habitId)!==String(habit._id)) )
     
@@ -191,7 +221,14 @@ const Dashboard = () => {
   }
 
   const archiveHabit = async (habit) => {
-    const res = await api.put(`/habits/${habit._id}/archive`)
+    // const res = await api.put(`/habits/${habit._id}/archive`)
+    const res = await toast.promise(
+      api.put(`/habits/${habit._id}/archive`),{
+        pending:'Archive status changing...',
+        success: `${habit.name.toUpperCase()} has been ${habit.isArchived ? 'Unarchived.' : 'Archived'}`,
+        error: 'Failed to change status of archive.'
+      }
+    )
     if(res.data.isArchived){
       setHabits((hs)=>hs.filter((h)=>h._id !== habit._id))
     } else {
@@ -200,14 +237,20 @@ const Dashboard = () => {
   }
 
   const acceptSuggestion = async (s) =>{
-    const res = await api.post('/habits', {
-      name:s.name,
-      description:s.description, 
-      category:s.category,
-      frequency: s.frequency,
-      icon: s.icon, 
-      targetDays: s.frequency === 'daily' ? 7 : 3
-    }) 
+    const res = await toast.promise(
+      await api.post('/habits', {
+        name:s.name,
+        description:s.description, 
+        category:s.category,
+        frequency: s.frequency,
+        icon: s.icon, 
+        targetDays: s.frequency === 'daily' ? 7 : 3
+      }),{
+        pending:'Adding new habit...',
+        success: `New habit ${s.name.toUpperCase()} has been added.`,
+        error: `Failed to add ${s.name.toUpperCase()}`
+      } 
+    )
     setHabits((hs)=>[...hs, res.data])
     setAllLogsByHabit((p)=>({...p, [res.data._id]: []}))
   }

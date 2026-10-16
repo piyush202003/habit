@@ -121,7 +121,7 @@ const Stats = () => {
           <div className="text-5xl mb-3">📊</div>
           <div className="font-medium">No data yet</div>
           <div className="text-sm text-muted mt-1">
-            Create a habit and check it off a few times to unloack statistics.
+            Create a habit and check it off a few times to unloak statistics.
           </div>
         </div>
       ):(
