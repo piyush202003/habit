@@ -13,13 +13,22 @@ export const markComplete = async (req, res) => {
         if(!habit) {
             return res.status(404).json({message:'Habit not found.'})
         }
-        const log = await HabitLog.findOneAndUpdate(
-            {userId: req.user._id, habitId, completedDate},
-            {$setOnInsert: {userId:req.user._id, habitId, completedDate}},
-            {upsert: true, new: true}
-        )
+
+        let log = await HabitLog.findOne({
+            userId: req.user._id, habitId, completedDate
+        })
+        
+        if(log){
+            return res.status(404).json({message: 'This habit alredy done for that Date.'})
+        }else{
+            log = await HabitLog.create({
+                userId:req.user._id, habitId, completedDate
+            })
+        }
+
         res.status(201).json(log)
     } catch (error) {
+        console.log(error.message)
         res.status(500).json({message: error.message})
     }
 }

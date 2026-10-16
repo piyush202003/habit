@@ -193,11 +193,12 @@ const Dashboard = () => {
   const archiveHabit = async (habit) => {
     const res = await api.put(`/habits/${habit._id}/archive`)
     if(res.data.isArchived){
-      setHabits((hs)=>hs.filter((h)=>h._id === habit._id))
+      setHabits((hs)=>hs.filter((h)=>h._id !== habit._id))
     } else {
       setHabits((hs) => hs.map((h)=>h._id === res.data._id ? res.data : h))
     }
   }
+
   const acceptSuggestion = async (s) =>{
     const res = await api.post('/habits', {
       name:s.name,
